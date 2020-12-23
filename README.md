@@ -38,7 +38,7 @@ echo "在线预览链接=" . $onlinePreviewLink . "\n";
  * @param bool $urlEncode 是否对参数编码
  * @return string
  */
-$currentPictureUrl = 'https://szwwinter.oss-cn-shenzhen.aliyuncs.com/test/1.jpg';
+$currentPictureUrl = 'https://xxx.xxx.oss-cn-shenzhen.aliyuncs.com/test/1.jpg';
 $picturesUrl = ['https://xxx.xxx.oss-cn-shenzhen.aliyuncs.com/test/2.jpg', 'https://xxx.xxx.oss-cn-shenzhen.aliyuncs.com/test/1.jpg'];
 $appendParams = ['watermarkTxt' => 'water'];
 $picturesPreviewLink = $onlineFileview->getPicturesPreviewLink($currentPictureUrl, $picturesUrl, $appendParams);
