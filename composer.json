@@ -1,0 +1,21 @@
+{
+    "name": "imy/fileview",
+    "description": "文件预览sdk",
+    "keywords": [
+      "fileview"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "songzw",
+            "email": "songzw1024@163.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "imy\\fileview\\": "src/"
+        }
+    },
+    "require": {}
+}
