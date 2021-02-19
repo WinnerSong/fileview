@@ -17,6 +17,8 @@ namespace imy\fileview;
  */
 class OnlineFileview
 {
+    //对文件url进行decode，多次decode 对 url不影响
+    const MAX_DECODE_TIMES = 3;
     /**
      * 预览服务站点域名
      * @var null|string
@@ -42,19 +44,12 @@ class OnlineFileview
     private $addTaskPath = '/addTask';
 
     /**
-     * 是否对url编码
-     * @var boolean
-     */
-    public $isUrlEncode = false;
-
-    /**
      * OnlineFileview constructor.
      * @param $host
      */
-    public function __construct($host, $isUrlEncode = false)
+    public function __construct($host)
     {
         $this->host = rtrim($host, '/');
-        $this->isUrlEncode = $isUrlEncode;
     }
 
     /**
@@ -66,13 +61,12 @@ class OnlineFileview
      * watermarkTxt 预览水印，对所有文件有效，默认没有水印
      * @param $fileOriginUrl 原始文件链接地址
      * @param array $appendParams 可选参数
-     * @param bool $urlEncode 是否对参数编码
      * @return string
      */
-    public function getOnlinePreviewLink($fileOriginUrl, $appendParams = [], $urlEncode = null)
+    public function getOnlinePreviewLink($fileOriginUrl, $appendParams = [])
     {
         $appendParams = array_merge(['url' => $fileOriginUrl], $appendParams);
-        return $this->getLink($this->onlinePreviewPath, $appendParams, $urlEncode);
+        return $this->getLink($this->onlinePreviewPath, $appendParams);
     }
 
 
@@ -83,57 +77,74 @@ class OnlineFileview
      * @param $currentPictureUrl 默认打开的图片链接地址
      * @param $picturesUrl 所有预览的图片链接地址
      * @param array $appendParams 可选参数
-     * @param bool $urlEncode 是否对参数编码
      * @return string
      */
-    public function getPicturesPreviewLink($currentPictureUrl, $picturesUrl, $appendParams = [], $urlEncode = null)
+    public function getPicturesPreviewLink($currentPictureUrl, $picturesUrl, $appendParams = [])
     {
-        $appendParams = array_merge(['currentUrl' => $currentPictureUrl, 'urls' => implode('|', $picturesUrl)], $appendParams);
-        return $this->getLink($this->picturesPreviewPath, $appendParams, $urlEncode);
+        $appendParams = array_merge(['currentUrl' => $currentPictureUrl, 'urls' => $picturesUrl], $appendParams);
+        return $this->getLink($this->picturesPreviewPath, $appendParams);
     }
 
     /**
      * 获取入列转码链接
      * @param $fileOriginUrl 原始文件链接地址
      * @param array $appendParams 可选参数
-     * @param bool $urlEncode
      * @return string
      */
-    public function getAddTaskLink($fileOriginUrl, $appendParams = [], $urlEncode = null)
+    public function getAddTaskLink($fileOriginUrl, $appendParams = [])
     {
         $appendParams = array_merge(['url' => $fileOriginUrl], $appendParams);
-        return $this->getLink($this->addTaskPath, $appendParams, $urlEncode);
+        return $this->getLink($this->addTaskPath, $appendParams);
     }
 
     /**
      * url中的参数值进行 urlencode
      * @param $params
-     * @param bool $urlEncode
      * @return string
      */
-    private function buildQueryParams(&$params, $urlEncode = null)
+    private function buildQueryParams(&$params)
     {
-        //动态传参数设置编码参数，或者实例化时已经设置需要编码
-        if ($urlEncode || (is_null($urlEncode) && $this->isUrlEncode)) {
-            return http_build_query($params);
-        } else {
-            $query = '';
-            array_walk($params, function ($value, $key) use (&$query) {
-                $query .= "{$key}={$value}&";
-            });
-            return rtrim($query, '&');
+        if (!empty($params['url'])) {
+            $params['url'] = $this->getEncodeUrl($params['url']);
         }
+
+        if (!empty($params['currentUrl'])) {
+            $params['currentUrl'] = $this->getEncodeUrl($params['currentUrl']);
+        }
+
+        if (!empty($params['urls'])) {
+            $urls = [];
+            foreach ($params['urls'] as $url) {
+                array_push($urls, $this->getEncodeUrl($url));
+            }
+
+            $params['urls'] = implode('|', $urls);
+        }
+        return http_build_query($params);
+    }
+
+    /**
+     * 对文件url进行多次decode，再进行encode，防止对访问地址进行多次 encode
+     * @param $originUrl
+     * @return string
+     */
+    private function getEncodeUrl($originUrl)
+    {
+        for ($i=0; $i< OnlineFileview::MAX_DECODE_TIMES; $i++) {
+            $originUrl = urldecode($originUrl);
+        }
+
+        return urlencode($originUrl);
     }
 
     /**
      * 生成链接
      * @param $path
      * @param $appendParams
-     * @param $urlEncode
      * @return string
      */
-    private function getLink($path, $appendParams, $urlEncode)
+    private function getLink($path, $appendParams)
     {
-        return sprintf("%s%s?%s", $this->host, $path, $this->buildQueryParams($appendParams, $urlEncode));
+        return sprintf("%s%s?%s", $this->host, $path, $this->buildQueryParams($appendParams));
     }
 }
