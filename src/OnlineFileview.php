@@ -57,6 +57,7 @@ class OnlineFileview
      * appendParams 参数可选值如下：
      * officePreviewType 文件预览格式，对 pdf、doc、ppt、dwg 文件有效，可选值 image、pdf，默认 image
      * pdfDownloadDisable 是否允许 pdf 文件下载，对 pdf、doc、ppt、dwg 文件使用 pdf 格式预览时有效，默认为 false
+     * switchButton 是否展示image和pdf切换按钮，默认展示，当传值为disabled时，不展示
      * cors 文件原始链接是否允许跨域，仅对 pdf 文件预览生效，当原始链接不允许跨域访问时需要设置为 disabled
      * watermarkTxt 预览水印，对所有文件有效，默认没有水印
      * @param $fileOriginUrl 原始文件链接地址
